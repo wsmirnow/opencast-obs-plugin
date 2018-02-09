@@ -1,0 +1,2 @@
+
+#define OBS_OPENCAST_INGEST_PLUGIN_VERSION "${${project_name}_VERSION}"

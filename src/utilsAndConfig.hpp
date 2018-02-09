@@ -4,6 +4,7 @@
 #include <string>
 
 #include "obsOpencastIngestPlugin.hpp"
+#include "obsOpencastIngestPlugin_version.h"
 
 namespace obsOpencastIngestPlugin
 {

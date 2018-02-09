@@ -17,7 +17,7 @@ OpencastSettings::OpencastSettings(QWidget *parent) :
     // Update window title with version information
     QString windowTitle = QString::fromStdString(
     		this->windowTitle().toStdString() +
-			" v" + OBSOPENCASTINGESTPLUGIN_BUILD_VERSION);
+			" v" + OBS_OPENCAST_INGEST_PLUGIN_VERSION);
     this->setWindowTitle(windowTitle);
 }
 

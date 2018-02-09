@@ -51,7 +51,7 @@ OBS_MODULE_AUTHOR("see Contributors.md on https://github.com/elan-ev/opencast-ob
 
 const char *obs_module_name(void)
 {
-	return "OpencastObsPlugin" " v" OBSOPENCASTINGESTPLUGIN_BUILD_VERSION;
+	return "Opencast Ingest" " v" OBS_OPENCAST_INGEST_PLUGIN_VERSION;
 }
 
 const char *obs_module_description(void)

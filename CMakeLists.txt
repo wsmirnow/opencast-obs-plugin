@@ -1,146 +1,110 @@
-
-# basis
 cmake_minimum_required(VERSION 3.1)
 
-set(project_name "obsOpencastIngestPlugin")
-
+set(project_name "OBSOpencastIngestPlugin")
 project(${project_name})
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 message("================================================")
 message("Project: ${project_name}")
-message("CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
-
-# obs lib
+# OBS lib
 message("================================================")
 find_package(LibObs REQUIRED)
 message("Found: LibObs")
 message("Include dirs: ${LIBOBS_INCLUDE_DIRS}")
 message("Libraries: ${LIBOBS_LIBRARIES}")
-
-
-# libOpencastIngestRestHelper lib
-message("================================================")
-set(LOIRH_INCLUDE_DIRS "libs/libOpencastIngest/include")
-set(LOIRH_LIBRARIES_NAME "OpencastIngest")
-set(LOIRH_LIBRARIES_PATH "libs/libOpencastIngest/lib")
-find_library(LOIRH_LIBRARIES ${LOIRH_LIBRARIES_NAME} ${LOIRH_LIBRARIES_PATH})
-message("Using: libOpencastIngestRestHelper")
-message("Include dirs: ${LOIRH_INCLUDE_DIRS}")
-message("Libraries: ${LOIRH_LIBRARIES}")
-
-
-# curl lib (dependency of libOpencastIngestRestHelper(static version))
-message("================================================")
-if(WIN32)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		find_package(CURL REQUIRED PATHS "/c/Program Files/")
-	else()
-		find_package(CURL REQUIRED PATHS "/c/Program Files (x86)/")
-	endif()
-else()
-	find_package(CURL REQUIRED)
-endif()
-message("Found Curl version (dependency of libOpencastIngestRestHelper(static version)): ${CURL_VERSION_STRING}")
-if(WIN32)
-	message("Libraries (before adjustment): ${CURL_LIBRARIES}")
-	set(CURL_LIBRARIES CURL::libcurl)
-endif()
-message("Libraries: ${CURL_LIBRARIES}")
-if(WIN32)
-	message("Other Settings (like includes) are set by adding the lib")
-	set(CURL_INCLUDE_DIRS "")
-else()
-	message("Include dirs: ${CURL_INCLUDE_DIRS}")
-endif()
-
-
-# tinyxml2 lib (dependency of libOpencastIngestRestHelper(static version))
-message("================================================")
-if(WIN32)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		find_package(TinyXML2 REQUIRED PATHS "/c/Program Files/")
-	else()
-		find_package(TinyXML2 REQUIRED PATHS "/c/Program Files (x86)/")
-	endif()
-else()
-	find_package(TinyXML2 REQUIRED)
-endif()
-message("Found tinyxml2")
-if(WIN32)
-	message("Libraries (before adjustment): ${TINYXML2_LIBRARIES}")
-	set(TINYXML2_LIBRARIES tinyxml2)
-endif()
-message("Libraries: ${TINYXML2_LIBRARIES}")
-if(WIN32)
-	message("Other Settings (like includes) are set by adding the lib")
-else()
-	message("Include dirs: ${TINYXML2_INCLUDE_DIR}")
-endif()
-
-
-# libconfig lib
-message("================================================")
-if(WIN32)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		find_path(CONFIG++_INCLUDE_DIRS libconfig.h++ "C:/Program Files/libconfig/include/")
-		find_library(CONFIG++_LIBRARY NAMES config++ config++.lib libconfig++ libconfig++.lib PATHS "C:/Program Files/libconfig/lib/")
-	else()
-		find_path(CONFIG++_INCLUDE_DIRS libconfig.h++ "C:/Program Files (x86)/libconfig/include/")
-		find_library(CONFIG++_LIBRARY NAMES config++ config++.lib libconfig++ libconfig++.lib PATHS "C:/Program Files (x86)/libconfig/lib/")
-	endif()
-else()
-	find_path(CONFIG++_INCLUDE_DIRS libconfig.h++ /usr/local/include)
-	find_library(CONFIG++_LIBRARY config++ /usr/local/lib)
-endif()
-message("Using: Config++ (libconfig)")
-message("Include dirs: ${CONFIG++_INCLUDE_DIRS}")
-message("Libraries: ${CONFIG++_LIBRARY}")
-
+set(${project_name}_INCLUDE_DIRS ${${project_name}_INCLUDE_DIRS} ${LIBOBS_INCLUDE_DIRS})
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${LIBOBS_LIBRARIES})
 
 # obs-frontend-api lib
 message("================================================")
-set(OBSFA_LIBRARIES_NAME "obs-frontend-api")
-if (WIN32)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		find_library(OBSFA_LIBRARIES ${OBSFA_LIBRARIES_NAME} PATHS "../obs-studio/build/UI/obs-frontend-api/Release/")
-	else()
-		find_library(OBSFA_LIBRARIES ${OBSFA_LIBRARIES_NAME} PATHS "../obs-studio/build32/UI/obs-frontend-api/Release/")
-	endif()
-else()
-	find_library(OBSFA_LIBRARIES ${OBSFA_LIBRARIES_NAME})
-endif()
+find_library(OBS_FRONTEND_API_LIBRARIES NAMES obs-frontend-api)
 message("Using: obs-frontend-api")
-message("Include dirs: not used (forward declaration see obsOpencastIngestPlugin.cpp)")
-if (WIN32)
-	message("Libraries: ${OBSFA_LIBRARIES}")
-else()
-	message("Libraries: ${OBSFA_LIBRARIES}(Currently not linked)")
-endif()
+message("Libraries: ${OBS_FRONTEND_API_LIBRARIES}")
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${OBS_FRONTEND_API_LIBRARIES})
 
 
-# Qt5 lib
+# OpencastIngest lib
 message("================================================")
-if (WIN32)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		find_package(Qt5 REQUIRED Widgets PATHS "C:/Qt/5.9.2/msvc2017_64/lib/cmake/Qt5" NO_DEFAULT_PATH)
+# prefere static linking here
+find_library(OpencastIngest_LIBRARIES NAMES OpencastIngest_static OpencastIngest)
+find_path(OpencastIngest_INCLUDE_DIRS libOpencastIngest.hpp)
+message("Using: libOpencastIngest")
+message("Include dirs: ${OpencastIngest_INCLUDE_DIRS}")
+message("Libraries: ${OpencastIngest_LIBRARIES}")
+set(${project_name}_INCLUDE_DIRS ${${project_name}_INCLUDE_DIRS} ${OpencastIngest_INCLUDE_DIRS})
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${OpencastIngest_LIBRARIES})
+
+# Curl lib
+message("================================================")
+find_library(LIBCURL_LIBRARIES NAMES curl)
+message("Using: libcurl")
+message("Libraries: ${LIBCURL_LIBRARIES}")
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${LIBCURL_LIBRARIES})
+
+# tinyxml2 lib
+message("================================================")
+find_library(TINYXML2_LIBRARIES NAMES tinyxml2)
+message("Using: libtinyxml2")
+message("Include dirs: ${TINYXML2_INCLUDE_DIRS}")
+message("Libraries: ${TINYXML2_LIBRARIES}")
+set(${project_name}_INCLUDE_DIRS ${${project_name}_INCLUDE_DIRS} ${TINYXML2_INCLUDE_DIRS})
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${TINYXML2_LIBRARIES})
+
+# libconfig
+message("================================================")
+find_library(LIBCONFIG_LIBRARIES NAMES config)
+message("Using: libconfig")
+message("Include dirs: ${LIBCONFIG_INCLUDE_DIRS}")
+message("Libraries: ${LIBCONFIG_LIBRARIES}")
+set(${project_name}_INCLUDE_DIRS ${${project_name}_INCLUDE_DIRS} ${LIBCONFIG_INCLUDE_DIRS})
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${LIBCONFIG_LIBRARIES})
+
+# Qt5 Core lib
+message("================================================")
+find_package(Qt5Core REQUIRED COMPONENTS Qt5::Core)
+get_target_property(Qt5Core_LOCATION Qt5::Core LOCATION)
+message("Using: Qt5 Core")
+message("Include dirs: ${Qt5Core_INCLUDE_DIRS}")
+message("Libraries: ${Qt5Core_LOCATION}")
+set(${project_name}_INCLUDE_DIRS ${${project_name}_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS})
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${Qt5Core_LOCATION})
+
+# Qt5 Widgets lib
+message("================================================")
+find_package(Qt5Widgets REQUIRED COMPONENTS Qt5::Widgets)
+get_target_property(Qt5Widgets_LOCATION Qt5::Widgets LOCATION)
+message("Using: Qt5 Widgets")
+message("Include dirs: ${Qt5Widgets_INCLUDE_DIRS}")
+message("Libraries: ${Qt5Widgets_LOCATION}")
+set(${project_name}_INCLUDE_DIRS ${${project_name}_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+set(${project_name}_LIBRARIES ${${project_name}_LIBRARIES} ${Qt5Widgets_LOCATION})
+
+
+# git version
+
+message("================================================")
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
+	find_package(Git)
+	if(GIT_FOUND)
+		execute_process(COMMAND ${GIT_EXECUTABLE} describe
+		    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+		    OUTPUT_VARIABLE ${project_name}_VERSION
+		    ERROR_QUIET
+		    OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
 	else()
-		find_package(Qt5 REQUIRED Widgets PATHS "C:/Qt/5.9.2/msvc2015/lib/cmake/Qt5" NO_DEFAULT_PATH)
+		set(${project_name}_VERSION "UNKNOWN")
 	endif()
 else()
-	find_package(Qt5 REQUIRED Widgets)
+	set(${project_name}_VERSION "UNKNOWN")
 endif()
+message("Build Version: ${${project_name}_VERSION}" )
 
-message("Found: Qt5")
-
-message("Using: Widgets")
-set(Qt5_LIBRARIES ${Qt5_LIBRARIES} ${Qt5Widgets_LIBRARIES})
-
-message("Libraries: ${Qt5_LIBRARIES}")
-message("Qt5 other Settings (like includes) are set by adding the library")
-
+configure_file(
+	"${PROJECT_SOURCE_DIR}/src/obsOpencastIngestPlugin_version.h.in"
+	"${PROJECT_BINARY_DIR}/src/obsOpencastIngestPlugin_version.h"
+)
+include_directories("${PROJECT_BINARY_DIR}/src")
 
 # main qt
 
@@ -163,41 +127,16 @@ set(main_qt_include ${main_ui_HEADERS_PATHS})
 message("Qt Source: ${main_qt_source}")
 message("Qt Includes: ${main_qt_include}")
 
-
-# git version
-
-message("================================================")
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-	find_package(Git)
-	if(GIT_FOUND)
-		execute_process(COMMAND ${GIT_EXECUTABLE} describe
-		    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-		    OUTPUT_VARIABLE build_version
-		    ERROR_QUIET
-		    OUTPUT_STRIP_TRAILING_WHITESPACE
-		)
-	else()
-		set(build_version "BUILD_VERSION_NOT_FOUND")
-	endif()
-else()
-	set(build_version "BUILD_VERSION_NOT_FOUND")
-endif()
-# currently unused
-message("Build Version: ${build_version}" )
-
-
 # main
 
 message("================================================")
 
 set(main_gnucxx_warn_err_compile_flags "-Wall -Wextra -pedantic-errors")
 
-set(main_source "src/obsOpencastIngestPlugin.cpp" "src/obsOpencastIngestPlugin.hpp" "src/utilsAndConfig.cpp" "src/utilsAndConfig.hpp" ${main_qt_source})
-set(main_include_dirs ${LIBOBS_INCLUDE_DIRS} ${LOIRH_INCLUDE_DIRS} ${CONFIG++_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${TINYXML2_INCLUDE_DIR} ${main_qt_include})
-set(main_libraries ${LIBOBS_LIBRARIES} ${LOIRH_LIBRARIES} ${CONFIG++_LIBRARY} ${CURL_LIBRARIES} ${TINYXML2_LIBRARIES} ${Qt5_LIBRARIES})
-if (WIN32)
-	set(main_libraries ${main_libraries} ${OBSFA_LIBRARIES})
-endif()
+set(main_headers "src/obsOpencastIngestPlugin.hpp" "src/utilsAndConfig.hpp")
+set(main_source ${main_headers} "src/obsOpencastIngestPlugin.cpp" "src/utilsAndConfig.cpp" ${main_qt_source})
+set(main_include_dirs ${${project_name}_INCLUDE_DIRS} ${main_qt_include})
+set(main_libraries ${${project_name}_LIBRARIES} ${Qt5_LIBRARIES})
 
 message("Name (lib using C++11): ${project_name}")
 message("Used source: ${main_source}")
@@ -214,6 +153,29 @@ set_target_properties(${project_name} PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
-target_compile_definitions(${project_name} PRIVATE -DOBSOPENCASTINGESTPLUGIN_BUILD_VERSION=\"${build_version}\")
 target_include_directories(${project_name} PRIVATE ${main_include_dirs})
 target_link_libraries(${project_name} PRIVATE ${main_libraries})
+
+
+message("================================================")
+# build a CPack driven installer package
+include (InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_NAME "${project_name}")
+set(CPACK_PACKAGE_VERSION "${${project_name}_VERSION}")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY false)
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_SOURCE_IGNORE_FILES "${CPACK_SOURCE_IGNORE_FILES};${CMAKE_BINARY_DIR};.git.*")
+if(WIN32)
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_SOURCE_GENERATOR "ZIP")
+message("Packaging type: ZIP")
+message("Packaging output: ${CPACK_PACKAGE_FILE_NAME}.zip")
+else()
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+message("Packaging type: TGZ")
+message("Packaging output: ${CPACK_PACKAGE_FILE_NAME}.tar.gz")
+endif()
+include(CPack)
+
+install(TARGETS ${project_name} DESTINATION .)

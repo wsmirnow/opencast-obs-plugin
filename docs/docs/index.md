@@ -65,19 +65,22 @@ Once the upload process is finished you will get notified.
 - qt (5.9.2 compatible)
 - libconfig (1.5 compatible)
 - [libOpencastIngest](https://github.com/elan-ev/lib-opencast-ingest) (0.4.0 compatible)
-    - add header files into `libs/libOpencastIngest/include`
-        - `libOpencastIngest.hpp`
-        - `libOpencastIngest.h`
-    - add the static library binary to `libs/libOpencastIngest/lib/libOpencastIngest.{a|lib}`
-          - This library also requires: libcurl, tinyxml2
 
+On RedHad based systems you can install the build tools and dependencies with:
+```bash
+# build tools
+yum install make cmake gcc gcc-c++
+# build dependencies
+yum install libcurl-devel tinyxml2-devel libconfig-devel qt5-qtbase-devel
+```
 
 ### How to build on Linux
 
-1. Clone the source Repo: [OpencastObsPlugin](https://github.com/elan-ev/opencast-obs-plugin)
-2. Install the required Programs as development versions with header files (you can use your package manager)
-3. Put the files of libOpencastIngest according to the Requirements into the source directory
-4. Execute the following commands in the source tree (this should create a file, which is called: `libobsOpencastIngestPlugin.so` in the `build/` directory):
+1. Clone the source repo: [OpencastObsPlugin](https://github.com/elan-ev/opencast-obs-plugin)
+2. Install the required packages as development versions with header files (you can use your package manager)
+3. Build and install [libOpencastIngest](https://github.com/elan-ev/lib-opencast-ingest)
+      - You may want to set an installation directory, add `-DCMAKE_INSTALL_DIRECTORY=<output_path>` argument to the `cmake` command
+4. Execute the following commands in the source tree (this should create a file, which is called: `libOBSOpencastIngestPlugin.so` in the `build/` directory):
 ```bash
 mkdir build
 cd build/
@@ -97,7 +100,7 @@ With [msys2](http://www.msys2.org/) installed you can perform the following step
 5. Put the files of libOpencastIngest according to the Requirements into the source directory
 6. Install qt 5.9.2 for msvc2015 and msvc2017_x64 to the default path
 7. Compile obs-studio relative to the source directory of opencastObsPlugin: `../obs-studio/build/`, on 32-bit:  `../obs-studio/build32/` (cmake target obs)
-8. Then execute the following commands (this should create a file, which is called `obsOpencastIngestPlugin.dll` in the `build/Release/` directory):
+8. Then execute the following commands (this should create a file, which is called `OBSOpencastIngestPlugin.dll` in the `build/Release/` directory):
 
 32-bit (on MinGW 32-bit console):
 ```bash
